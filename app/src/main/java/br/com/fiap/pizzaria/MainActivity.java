@@ -1,9 +1,12 @@
 package br.com.fiap.pizzaria;
 
+import android.content.Intent;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.spPagamentos)
     Spinner spPagamentos;
 
+    Pedido pedido = new Pedido();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +54,42 @@ public class MainActivity extends AppCompatActivity {
 
         }
         tvCliente.setText("Olá " + username);
+        setListenerCheckbox(cb4Queijos);
+        setListenerCheckbox(cbAtum);
+        setListenerCheckbox(cbBacon);
+        setListenerCheckbox(cbPortuguesa);
+
+
+    }
+
+    private void setListenerCheckbox(final CheckBox checkbox) {
+        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    pedido.addSabor(checkbox.getText().toString());
+                } else {
+                    pedido.removerSabor(checkbox.getText().toString());
+                }
+            }
+        });
     }
 
     @OnClick(R.id.btFecharPedido)
     public void fecharPedido() {
-        Pedido pedido = new Pedido();
 
         pedido.setCliente(username);
+        pedido.setTamanho(getTamanhoSelecionado());
+        pedido.setFormaPagamento(spPagamentos.getSelectedItem().toString);
+
+        Intent i = new Intent(this, ConfirmarPedidoActivity.class);
+        i.putExtra("PEDIDO", pedido);
+        startActivity(i);
+
     }
 
+    public String getTamanhoSelecionado() {
+        return ((RadioButton)findViewById(rgTamanho.getCheckedRadioButtonId())).getText().toString();
 
+    }
 }
